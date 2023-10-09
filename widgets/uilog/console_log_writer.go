@@ -14,12 +14,12 @@ type ConsoleLogWriter struct {
 }
 
 // Write write message in console.
-func (cjw *ConsoleLogWriter) Write(le *log.Event) (err error) {
-	if cjw.Console == nil || cjw.Reject(le) {
+func (clw *ConsoleLogWriter) Write(le *log.Event) (err error) {
+	if clw.Console == nil || clw.Reject(le) {
 		return
 	}
 
-	bs := cjw.Format(le)
+	bs := clw.Format(le)
 
 	var imp widget.Importance
 	switch le.Level {
@@ -35,22 +35,22 @@ func (cjw *ConsoleLogWriter) Write(le *log.Event) (err error) {
 		imp = widget.DangerImportance
 	}
 
-	cjw.Console.Add(string(bs), imp)
-	cjw.Console.ScrollToBottom()
+	clw.Console.Add(string(bs), imp)
+	clw.Console.ScrollToBottom()
 	return
 }
 
 // Flush implementing method. empty.
-func (cjw *ConsoleLogWriter) Flush() {
+func (clw *ConsoleLogWriter) Flush() {
 }
 
 // Close implementing method. empty.
-func (cjw *ConsoleLogWriter) Close() {
+func (clw *ConsoleLogWriter) Close() {
 }
 
 // Clear clear the output
-func (cjw *ConsoleLogWriter) Clear() {
-	if cjw.Console != nil {
-		cjw.Console.Clear()
+func (clw *ConsoleLogWriter) Clear() {
+	if clw.Console != nil {
+		clw.Console.Clear()
 	}
 }
