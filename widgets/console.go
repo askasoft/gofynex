@@ -5,7 +5,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/askasoft/pango/cog"
+	"github.com/askasoft/pango/cog/arraylist"
 )
 
 type Console struct {
@@ -13,7 +13,7 @@ type Console struct {
 
 	MaxLines int
 
-	Segments cog.ArrayList[widget.RichTextSegment]
+	Segments arraylist.ArrayList[widget.RichTextSegment]
 
 	RichText *widget.RichText
 }
