@@ -2,78 +2,70 @@ package widgets
 
 import (
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/askasoft/pango/cog/arraylist"
+	"github.com/askasoft/pango/cog/linkedlist"
+	"github.com/askasoft/pango/str"
 )
 
-type Console struct {
-	*container.Scroll
-
-	MaxLines int
-
-	Segments arraylist.ArrayList[widget.RichTextSegment]
-
-	RichText *widget.RichText
+type RichItem struct {
+	Text       string
+	Importance widget.Importance
 }
 
-func NewConsole(maxLines int) *Console {
+type Console struct {
+	list  *widget.List
+	data  linkedlist.LinkedList[RichItem]
+	limit int
+}
+
+func NewConsole(limit int) *Console {
 	c := &Console{
-		MaxLines: maxLines,
+		limit: limit,
 	}
 
-	c.RichText = widget.NewRichText()
-	c.RichText.Wrapping = fyne.TextWrapBreak
-
-	c.Scroll = container.NewVScroll(c.RichText)
-
+	c.list = widget.NewList(c.items, c.createItem, c.updateItem)
+	c.list.HideSeparators = true
 	return c
 }
 
-func (c *Console) Add(s string, imp widget.Importance) {
-	if c.Segments.Len() > c.MaxLines {
-		c.Segments.PollHead()
-	}
-
-	var color fyne.ThemeColorName
-	switch imp {
-	case widget.LowImportance:
-		color = theme.ColorNameDisabled
-	case widget.MediumImportance:
-		color = theme.ColorNameForeground
-	case widget.HighImportance:
-		color = theme.ColorNamePrimary
-	case widget.DangerImportance:
-		color = theme.ColorNameError
-	case widget.WarningImportance:
-		color = theme.ColorNameWarning
-	case widget.SuccessImportance:
-		color = theme.ColorNameSuccess
-	default:
-		color = theme.ColorNameForeground
-	}
-
-	c.Segments.Add(&widget.TextSegment{
-		Style: widget.RichTextStyle{
-			Alignment: fyne.TextAlignLeading,
-			ColorName: color,
-			Inline:    true,
-			TextStyle: fyne.TextStyle{},
-		},
-		Text: s,
-	})
-	c.RichText.Segments = c.Segments.Values()
-	c.RichText.Refresh()
+func (c *Console) Widget() fyne.CanvasObject {
+	return c.list
 }
 
-func (c *Console) Refresh() {
-	c.RichText.Segments = c.Segments.Values()
-	c.RichText.Refresh()
-	c.Scroll.Refresh()
+func (c *Console) items() int {
+	return c.data.Len()
+}
+
+func (c *Console) createItem() fyne.CanvasObject {
+	lbl := widget.NewLabel("")
+	lbl.Wrapping = fyne.TextWrapBreak
+	return lbl
+}
+
+func (c *Console) updateItem(i widget.ListItemID, o fyne.CanvasObject) {
+	item := c.data.Get(i)
+
+	lbl := o.(*widget.Label)
+	lbl.Importance = item.Importance
+	lbl.SetText(item.Text)
+
+	c.list.SetItemHeight(i, lbl.MinSize().Height)
+}
+
+func (c *Console) WriteText(s string, imp widget.Importance) {
+	if c.data.Len() > c.limit {
+		c.data.PollHead()
+	}
+
+	c.data.Push(RichItem{
+		Text:       str.StripRight(s),
+		Importance: imp,
+	})
+
+	c.list.ScrollToBottom()
 }
 
 func (c *Console) Clear() {
-	c.Segments.Clear()
-	c.Refresh()
+	c.data.Clear()
+	c.list.Refresh()
 }
