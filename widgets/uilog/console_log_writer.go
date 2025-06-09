@@ -10,14 +10,14 @@ type ConsoleWidget interface {
 }
 
 type ConsoleLogWriter struct {
-	log.LogFilter
-	log.LogFormatter
+	log.FilterSupport
+	log.FormatSupport
 
 	Console ConsoleWidget
 }
 
 // Write write message in console.
-func (clw *ConsoleLogWriter) Write(le *log.Event) (err error) {
+func (clw *ConsoleLogWriter) Write(le *log.Event) {
 	if clw.Console == nil || clw.Reject(le) {
 		return
 	}
@@ -26,7 +26,6 @@ func (clw *ConsoleLogWriter) Write(le *log.Event) (err error) {
 
 	imp := LogLevelToImportance(le.Level)
 	clw.Console.WriteText(string(bs), imp)
-	return
 }
 
 func LogLevelToImportance(lvl log.Level) (imp widget.Importance) {
