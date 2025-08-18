@@ -34,5 +34,5 @@ Hello world
 ## Environment
 
 - go version:
-- fynes version (or commit ref):
+- gofynex version (or commit ref):
 - operating system:
