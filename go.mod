@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	fyne.io/fyne/v2 v2.6.2
-	github.com/askasoft/pango v1.2.0
+	github.com/askasoft/pango v1.2.2
 )
 
 require (
